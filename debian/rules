@@ -17,9 +17,7 @@ PACKAGE = rtl8723ds-bt
 
 
 override_dh_auto_build:
-	$(MAKE) CC=$(CC) PREFIX=$(PWD)/debian/$(PACKAGE)
-	cp tty-bt-rtk-hciattach.rules debian/$(PACKAGE).tty-bt-rtk-hciattach.udev
+	$(MAKE) -C rtk_hciattach CC=$(CC)
 
 override_dh_auto_install:
-	$(MAKE) CC=$(CC) PREFIX=$(PWD)/debian/$(PACKAGE) install
 	dh_installudev --name=tty-bt-rtk-hciattach --priority=99
