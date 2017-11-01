@@ -449,9 +449,16 @@ static void rtk_vendor_cmd_to_fw(uint16_t opcode, uint8_t parameter_len,
 #if HCI_VERSION_CODE < KERNEL_VERSION(4, 4, 0)
 	bt_cb(skb)->req.start = true;
 #else
+
+#if HCI_VERSION_CODE < KERNEL_VERSION(4, 5, 0)
 	bt_cb(skb)->hci.req_start = true;
+#else
+
+	bt_cb(skb)->hci.req_flags |= HCI_REQ_START;
 #endif
-#endif
+
+#endif /* 4.4.0 */
+#endif /* 3.10.0 */
 	RTKBT_DBG("%s: opcode 0x%x", __func__, opcode);
 
 	/* It is harmless if set skb->dev twice. The dev will be used in
@@ -2521,6 +2528,11 @@ void rtk_btcoex_open(struct hci_dev *hdev)
 	INIT_DELAYED_WORK(&btrtl_coex.sock_work,
 			  (void *)udpsocket_recv_data);
 	INIT_DELAYED_WORK(&btrtl_coex.l2_work, (void *)rtl_l2_work);
+
+	init_timer(&btrtl_coex.polling_timer);
+	init_timer(&btrtl_coex.a2dp_count_timer);
+	init_timer(&btrtl_coex.pan_count_timer);
+	init_timer(&btrtl_coex.hogp_count_timer);
 
 	btrtl_coex.hdev = hdev;
 	btrtl_coex.wifi_on = 0;
